@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<style>
+    input[type="submit"] {
+        width: 150px;
+        height: 30px;
+        border-radius: 5px;
+        background-color: #5c9a41;
+        color: white;
+        font-size: large;
+    }
+    input[type="text"] {
+        width: 300px;
+        height: 30px;
+        font-size: large;
+        /*
+        background-color: #5c9a41;
+        color: white;
+        */
+    }
+    input[type="file"] {
+        font-size: medium;
+    }
+</style>
+</head>
+<body>
+<form id="form" action="upload.php" method="post" enctype="multipart/form-data">
+HTMLをZIPに圧縮してアップロードしてください。
+<div id="drop_zone" style="background-image: url('upload.png'); width: 378px; height: 182px;"></div>
+<br>
+または
+<br>
+<br>
+<input type="file" id="upfiles" name="upfile[]" accept="application/x-zip-compressed">
+<br>
+<br>
+アクセス用URLの送信先（メールアドレス）を入力してください。
+<br>
+<input type="text" id="mail" name="mail" value="t.akase@innovator.jp.net">
+<br>
+<br>
+<input type="submit" value="アップロード">
+</form>
+
+<script>
+$(function () {
+    var uploadFiles = function (files) {
+        // FormData オブジェクトを用意
+        var fd = new FormData(document.getElementById("form"));
+        console.error(files);
+
+        // ファイル情報を追加する
+        for (var i = 0; i < files.length; i++) {
+            console.error(i);
+            console.error(files[i]);
+            fd.append("upfile", files[i]);
+        }
+        console.error(fd);
+
+        // XHR で送信
+        $.ajax({
+            url: "upload.php",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false
+        });
+    };
+
+    // ファイル選択フォームからの入力
+    $("#upfiles").bind("change", function () {
+        // 選択されたファイル情報を取得
+        var files = this.files;
+
+        // アップロード処理
+        uploadFiles(files);
+    });
+
+    // ドラッグドロップからの入力
+    $("#drop_zone").bind("drop", function (e) {
+        // ドラッグされたファイル情報を取得
+        var files = e.originalEvent.dataTransfer.files;
+        console.error(files);
+
+        // アップロード処理
+        uploadFiles(files);
+        return false;
+    })
+    .bind("dragenter", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        //event.originalEvent.dataTransfer.dropEffect = "link";
+        // false を返してデフォルトの処理を実行しないようにする
+        return false;
+    })
+    .bind("dragover", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        //event.originalEvent.dataTransfer.dropEffect = "link";
+        // false を返してデフォルトの処理を実行しないようにする
+        return false;
+    });
+});
+</script>
+</body>
+</html>
